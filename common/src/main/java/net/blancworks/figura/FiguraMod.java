@@ -3,6 +3,9 @@ package net.blancworks.figura;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import net.blancworks.figura.access.FiguraTextAccess;
+import me.shedaniel.architectury.event.events.client.ClientTickEvent;
+import me.shedaniel.architectury.platform.Platform;
+import me.shedaniel.architectury.registry.ReloadListeners;
 import net.blancworks.figura.lua.FiguraLuaManager;
 import net.blancworks.figura.models.CustomModel;
 import net.blancworks.figura.models.CustomModelPart;
@@ -11,26 +14,19 @@ import net.blancworks.figura.network.FiguraNetworkManager;
 import net.blancworks.figura.network.IFiguraNetwork;
 import net.blancworks.figura.network.NewFiguraNetworkManager;
 import net.blancworks.figura.trust.PlayerTrustManager;
-import net.fabricmc.api.ClientModInitializer;
-import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
-import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
-import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
-import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
-import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
-import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
+import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.model.PlayerEntityModel;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.resource.ResourceManager;
 import net.minecraft.resource.ResourceType;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
+import net.minecraft.resource.SynchronousResourceReloadListener;
 import net.minecraft.util.Identifier;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -45,7 +41,8 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
-public class FiguraMod implements ClientModInitializer {
+public class FiguraMod {
+    public static final String MOD_ID = "figura";
 
     public static final Gson GSON = new GsonBuilder().registerTypeAdapter(CustomModel.class, new BlockbenchModelDeserializer())
             .setPrettyPrinting().create();
@@ -60,7 +57,7 @@ public class FiguraMod implements ClientModInitializer {
     //If an asset is set to load, it will attach to this if it exists, or create a new one if it doesn't.
     private static CompletableFuture globalLoadTask;
 
-    private PlayerDataManager dataManagerInstance;
+    private static PlayerDataManager dataManagerInstance;
 
     public static IFiguraNetwork networkManager;
 
@@ -96,8 +93,7 @@ public class FiguraMod implements ClientModInitializer {
         deltaTime = 0;
     }
 
-    @Override
-    public void onInitializeClient() {
+    public static void init() {
         FiguraLuaManager.initialize();
         PlayerTrustManager.init();
         Config.initialize();
@@ -119,24 +115,14 @@ public class FiguraMod implements ClientModInitializer {
         }
 
         //Register fabric events
-        ClientTickEvents.END_CLIENT_TICK.register(FiguraMod::ClientEndTick);
-        WorldRenderEvents.AFTER_ENTITIES.register(FiguraMod::renderFirstPersonWorldParts);
-        ClientLifecycleEvents.CLIENT_STOPPING.register((v) -> {
-            networkManager.onClose();
-        });
+        ClientTickEvent.CLIENT_POST.register(FiguraMod::ClientEndTick);
+//        WorldRenderEvents.AFTER_ENTITIES.register(FiguraMod::renderFirstPersonWorldParts);
+//        ClientLifecycleEvent.CLIENT_STOPPING.register((v) -> {
+//            networkManager.onClose();
+//        });
 
         dataManagerInstance = new PlayerDataManager();
-        ResourceManagerHelper.get(ResourceType.CLIENT_RESOURCES).registerReloadListener(new SimpleSynchronousResourceReloadListener() {
-            @Override
-            public Identifier getFabricId() {
-                return new Identifier("figura", "reloadtextures");
-            }
-
-            @Override
-            public void apply(ResourceManager manager) {
-                PlayerDataManager.reloadAllTextures();
-            }
-        });
+        ReloadListeners.registerReloadListener(ResourceType.CLIENT_RESOURCES, (SynchronousResourceReloadListener) manager -> PlayerDataManager.reloadAllTextures());
 
         getModContentDirectory();
     }
@@ -156,7 +142,7 @@ public class FiguraMod implements ClientModInitializer {
     }
     
     public static Path getModContentDirectory() {
-        Path p = FabricLoader.getInstance().getGameDir().normalize().resolve("figura");
+        Path p = Platform.getGameFolder().normalize().resolve("figura");
         try {
             Files.createDirectories(p);
         } catch (Exception e) {
@@ -197,18 +183,18 @@ public class FiguraMod implements ClientModInitializer {
     }
 
 
-    private static void renderFirstPersonWorldParts(WorldRenderContext context) {
+    public static void renderFirstPersonWorldParts(Camera camera, MatrixStack matrixStack, float tickDelta) {
         try {
-            if (!context.camera().isThirdPerson()) {
+            if (!camera.isThirdPerson()) {
                 PlayerData data = PlayerDataManager.localPlayer;
 
                 if (data != null && data.lastEntity != null) {
 
                     FiguraMod.currentData = data;
 
-                    context.matrixStack().push();
-                    context.matrixStack().translate(-context.camera().getPos().x, -context.camera().getPos().y, -context.camera().getPos().z);
-                    context.matrixStack().scale(-1, -1, 1);
+                    matrixStack.push();
+                    matrixStack.translate(-camera.getPos().x, -camera.getPos().y, -camera.getPos().z);
+                    matrixStack.scale(-1, -1, 1);
 
                     try {
 
@@ -218,7 +204,7 @@ public class FiguraMod implements ClientModInitializer {
 
                             if (data != null && data.model != null) {
                                 for (CustomModelPart part : data.model.worldParts) {
-                                    part.renderUsingAllTextures(data, context.matrixStack(), new MatrixStack(), FiguraMod.vertexConsumerProvider, MinecraftClient.getInstance().getEntityRenderDispatcher().getLight(data.lastEntity, context.tickDelta()), OverlayTexture.DEFAULT_UV, 1.0f);
+                                    part.renderUsingAllTextures(data, matrixStack, new MatrixStack(), FiguraMod.vertexConsumerProvider, MinecraftClient.getInstance().getEntityRenderDispatcher().getLight(data.lastEntity, tickDelta), OverlayTexture.DEFAULT_UV, 1.0f);
                                 }
                             }
 
@@ -228,7 +214,7 @@ public class FiguraMod implements ClientModInitializer {
                         e.printStackTrace();
                     }
 
-                    context.matrixStack().pop();
+                    matrixStack.pop();
 
                     FiguraMod.clearRenderingData();
                 }

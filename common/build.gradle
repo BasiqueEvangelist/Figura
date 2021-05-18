@@ -1,0 +1,55 @@
+dependencies {
+    // We depend on fabric loader here to use the fabric @Environment annotations and get the mixin dependencies
+    // Do NOT use other classes from fabric loader
+    modImplementation "net.fabricmc:fabric-loader:${rootProject.fabric_loader_version}"
+    // Remove the next line if you don't want to depend on the API
+    modApi "me.shedaniel:architectury:${rootProject.architectury_version}"
+
+    // LuaJ
+	implementation group: 'org.luaj', name: 'luaj-jse', version: '3.0.1'
+
+	// OBJ Loader
+	implementation group: 'de.javagl', name: 'obj', version: '0.3.0'
+
+	//SpruceUI
+	/*modImplementation "com.github.lambdaurora:spruceui:${project.spruceui_version}"
+
+	//LambDynamicLights
+	modImplementation 'com.github.LambdAurora:LambDynamicLights:1.3.4-1.16'
+
+	//Origins
+	modImplementation "com.github.apace100:origins-fabric:${project.origins_version}"*/
+
+	//WebSocket library
+	implementation 'com.neovisionaries:nv-websocket-client:2.14'
+
+	//Google has better IO options than java, 4head
+	// https://mvnrepository.com/artifact/com.google.guava/guava
+	implementation group: 'com.google.guava', name: 'guava', version: '30.1.1-jre'
+}
+
+architectury {
+    common()
+}
+
+java {
+    withSourcesJar()
+}
+
+publishing {
+    publications {
+        mavenCommon(MavenPublication) {
+            artifactId = rootProject.archives_base_name
+            // add all the jars that should be included when publishing to maven
+            artifact remapJar
+            artifact(sourcesJar) {
+                builtBy remapSourcesJar
+            }
+        }
+    }
+
+    // See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing.
+    repositories {
+        // Add repositories to publish to here.
+    }
+}

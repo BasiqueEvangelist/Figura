@@ -20,14 +20,14 @@
   "environment": "client",
   "entrypoints": {
     "client": [
-      "net.blancworks.figura.FiguraMod"
+      "net.blancworks.figura.fabric.FiguraModFabric"
     ],
     "modmenu": [
-      "net.blancworks.figura.othermods.modmenu.ModMenuConfig"
+      "net.blancworks.figura.fabric.othermods.modmenu.ModMenuConfig"
     ]
   },
   "mixins": [
-    "figura.mixins.json"
+    "figura-common.mixins.json"
   ],
 
   "depends": {

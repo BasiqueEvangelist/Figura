@@ -2,7 +2,7 @@ package net.blancworks.figura;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import net.fabricmc.loader.api.FabricLoader;
+import me.shedaniel.architectury.platform.Platform;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -14,7 +14,7 @@ import java.util.Map;
 public class Config {
     public static final Map<String, ConfigEntry> entries = new HashMap<>();
 
-    private static final File file = new File(FabricLoader.getInstance().getConfigDir().resolve("figura.json").toString());
+    private static final File file = new File(Platform.getConfigFolder().resolve("figura.json").toString());
 
     public static void initialize() {
         setDefaults();
@@ -150,8 +150,8 @@ public class Config {
 
     //returns true if modmenu shifts other buttons on the game menu screen
     public static boolean modmenuButton() {
-        if (FabricLoader.getInstance().isModLoaded("modmenu")) {
-            File file = new File(FabricLoader.getInstance().getConfigDir().resolve("modmenu.json").toString());
+        if (Platform.isModLoaded("modmenu")) {
+            File file = new File(Platform.getConfigFolder().resolve("modmenu.json").toString());
 
             try {
                 if (file.exists()) {

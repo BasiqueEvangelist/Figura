@@ -1,4 +1,4 @@
-package net.blancworks.figura.othermods.modmenu;
+package net.blancworks.figura.fabric.othermods.modmenu;
 
 import com.terraformersmc.modmenu.api.ConfigScreenFactory;
 import com.terraformersmc.modmenu.api.ModMenuApi;

@@ -4,12 +4,12 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import me.shedaniel.architectury.platform.Platform;
+import me.shedaniel.architectury.utils.NbtType;
 import net.blancworks.figura.FiguraMod;
 import net.blancworks.figura.trust.settings.PermissionBooleanSetting;
 import net.blancworks.figura.trust.settings.PermissionFloatSetting;
 import net.blancworks.figura.trust.settings.PermissionSetting;
-import net.fabricmc.fabric.api.util.NbtType;
-import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -132,11 +132,8 @@ public class PlayerTrustManager {
     }
 
     public static void loadDefaultGroups() {
-        Path p = FabricLoader.getInstance().getModContainer("figura").get().getRootPath().resolve("presets.json");
-
-        //if (Files.exists(p)) {
         try {
-            InputStream s = Files.newInputStream(p);
+            InputStream s = PlayerTrustManager.class.getResourceAsStream("/presets.json");
             InputStreamReader fileReader = new InputStreamReader(s);
             JsonParser parser = new JsonParser();
             JsonObject rootObject = (JsonObject) parser.parse(fileReader);
@@ -281,7 +278,7 @@ public class PlayerTrustManager {
             CompoundTag targetTag = new CompoundTag();
             writeNbt(targetTag);
 
-            Path targetPath = FabricLoader.getInstance().getGameDir().resolve("figura");
+            Path targetPath = Platform.getGameFolder().resolve("figura");
             Files.createDirectories(targetPath);
             targetPath = targetPath.resolve("trustSettings.nbt");
 
@@ -299,7 +296,7 @@ public class PlayerTrustManager {
 
     public static void loadFromDisk() {
         try {
-            Path targetPath = FabricLoader.getInstance().getGameDir().resolve("figura").resolve("trustSettings.nbt");
+            Path targetPath = Platform.getGameFolder().resolve("figura").resolve("trustSettings.nbt");
 
             if (!Files.exists(targetPath))
                 return;

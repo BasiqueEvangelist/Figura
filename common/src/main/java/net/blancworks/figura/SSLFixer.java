@@ -1,7 +1,5 @@
 package net.blancworks.figura;
 
-import net.fabricmc.loader.api.FabricLoader;
-
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLHandshakeException;
 import javax.net.ssl.TrustManagerFactory;
@@ -35,11 +33,8 @@ public class SSLFixer {
 
             CertificateFactory cf = CertificateFactory.getInstance("X.509");
 
-            Path p = FabricLoader.getInstance().getModContainer("figura").get().getRootPath().resolve("FiguraNewCertificate.cer");
+            InputStream caInput = SSLFixer.class.getResourceAsStream("/FiguraNewCertificate.cer");
 
-            InputStream caInput = Files.newInputStream(p);
-
-            
             try {
                 Certificate crt = cf.generateCertificate(caInput);
                 System.out.println("Added Cert for " + ((X509Certificate) crt)
