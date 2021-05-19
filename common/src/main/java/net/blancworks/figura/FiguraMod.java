@@ -5,7 +5,6 @@ import com.google.gson.GsonBuilder;
 import net.blancworks.figura.access.FiguraTextAccess;
 import me.shedaniel.architectury.event.events.client.ClientTickEvent;
 import me.shedaniel.architectury.platform.Platform;
-import me.shedaniel.architectury.registry.ReloadListeners;
 import net.blancworks.figura.lua.FiguraLuaManager;
 import net.blancworks.figura.models.CustomModel;
 import net.blancworks.figura.models.CustomModelPart;
@@ -21,12 +20,10 @@ import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.model.PlayerEntityModel;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.resource.ResourceType;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
-import net.minecraft.resource.SynchronousResourceReloadListener;
 import net.minecraft.util.Identifier;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -122,7 +119,6 @@ public class FiguraMod {
 //        });
 
         dataManagerInstance = new PlayerDataManager();
-        ReloadListeners.registerReloadListener(ResourceType.CLIENT_RESOURCES, (SynchronousResourceReloadListener) manager -> PlayerDataManager.reloadAllTextures());
 
         getModContentDirectory();
     }

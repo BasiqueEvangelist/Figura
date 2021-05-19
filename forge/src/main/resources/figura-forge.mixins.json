@@ -4,7 +4,8 @@
   "package": "net.blancworks.figura.forge.mixin",
   "compatibilityLevel": "JAVA_8",
   "client": [
-    "WorldRendererMixin"
+    "WorldRendererMixin",
+    "MinecraftClientMixin"
   ],
   "injectors": {
     "defaultRequire": 1
