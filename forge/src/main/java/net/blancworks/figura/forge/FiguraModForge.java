@@ -1,8 +1,8 @@
 package net.blancworks.figura.forge;
 
 import me.shedaniel.architectury.platform.forge.EventBuses;
+import net.blancworks.figura.FiguraCommon;
 import net.blancworks.figura.FiguraMod;
-import net.blancworks.figura.gui.FiguraConfigScreen;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.ExtensionPoint;
@@ -16,9 +16,9 @@ import org.apache.commons.lang3.tuple.Pair;
 public class FiguraModForge {
     public FiguraModForge() {
         EventBuses.registerModEventBus(FiguraMod.MOD_ID, FMLJavaModLoadingContext.get().getModEventBus());
+        FiguraCommon.init();
         DistExecutor.safeRunWhenOn(Dist.CLIENT, () -> FiguraMod::init);
 
         ModLoadingContext.get().registerExtensionPoint(ExtensionPoint.DISPLAYTEST, () -> Pair.of(() -> FMLNetworkConstants.IGNORESERVERONLY, (a, b) -> true));
-        ModLoadingContext.get().registerExtensionPoint(ExtensionPoint.CONFIGGUIFACTORY, () -> (client, parent) -> new FiguraConfigScreen(parent));
     }
 }

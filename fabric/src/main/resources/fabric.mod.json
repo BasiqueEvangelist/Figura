@@ -22,8 +22,8 @@
     "client": [
       "net.blancworks.figura.fabric.FiguraModFabric"
     ],
-    "modmenu": [
-      "net.blancworks.figura.fabric.othermods.modmenu.ModMenuConfig"
+    "main": [
+      "net.blancworks.figura.FiguraCommon::init"
     ]
   },
   "mixins": [

@@ -5,6 +5,7 @@ import com.google.gson.GsonBuilder;
 import net.blancworks.figura.access.FiguraTextAccess;
 import me.shedaniel.architectury.event.events.client.ClientTickEvent;
 import me.shedaniel.architectury.platform.Platform;
+import net.blancworks.figura.gui.FiguraConfigScreen;
 import net.blancworks.figura.lua.FiguraLuaManager;
 import net.blancworks.figura.models.CustomModel;
 import net.blancworks.figura.models.CustomModelPart;
@@ -88,6 +89,11 @@ public class FiguraMod {
         currentPlayer = null;
         currentData = null;
         deltaTime = 0;
+    }
+
+    // This is needed because the config screen must be registered before the env-specific entrypoints.
+    public static void commonInit() {
+        Platform.getMod(MOD_ID).registerConfigurationScreen(FiguraConfigScreen::new);
     }
 
     public static void init() {
