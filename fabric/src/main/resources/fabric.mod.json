@@ -33,7 +33,8 @@
   "depends": {
     "fabricloader": ">=0.7.4",
     "fabric": "*",
-    "minecraft": "1.16.x"
+    "minecraft": "1.16.x",
+    "architectury": ">=1.10"
   },
   "suggests": {
     "another-mod": "*"
