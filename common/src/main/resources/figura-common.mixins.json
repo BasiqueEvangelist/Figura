@@ -21,7 +21,8 @@
     "FiguraTextImplMixin",
     "WorldRendererMixin",
     "MinecraftClientMixin",
-    "CameraMixin"
+    "CameraMixin",
+    "ModelMixin"
   ],
   "injectors": {
     "defaultRequire": 1

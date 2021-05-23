@@ -2,6 +2,7 @@ package net.blancworks.figura.mixin;
 
 import net.blancworks.figura.FiguraMod;
 import net.blancworks.figura.PlayerData;
+import net.blancworks.figura.access.ModelAccess;
 import net.blancworks.figura.access.ModelPartAccess;
 import net.blancworks.figura.lua.api.model.ArmorModelAPI;
 import net.blancworks.figura.lua.api.model.VanillaModelPartCustomization;
@@ -19,6 +20,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.ArrayList;
@@ -34,9 +36,8 @@ public class ArmorFeatureRendererMixin<T extends LivingEntity, M extends BipedEn
 
     private HashMap<EquipmentSlot, String> partMap = new HashMap<EquipmentSlot, String>();
     
-    @Inject(at = @At("HEAD"), method = "renderArmor")
-    private void onRenderArmor(MatrixStack matrices, VertexConsumerProvider vertexConsumers, T livingEntity, EquipmentSlot equipmentSlot, int i, A bipedEntityModel, CallbackInfo ci) {
-        
+    @Redirect(method = "renderArmor", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/entity/model/BipedEntityModel;setAttributes(Lnet/minecraft/client/render/entity/model/BipedEntityModel;)V"))
+    private void onRenderArmor(M otherModel, BipedEntityModel<T> actualModel, MatrixStack matrices, VertexConsumerProvider vertexConsumers, T livingEntity, EquipmentSlot equipmentSlot, int i, A bipedEntityModel) {
         if(partMap.size() == 0){
             partMap.put(EquipmentSlot.HEAD, ArmorModelAPI.VANILLA_HELMET);
             partMap.put(EquipmentSlot.CHEST, ArmorModelAPI.VANILLA_CHESTPLATE);
@@ -51,17 +52,14 @@ public class ArmorFeatureRendererMixin<T extends LivingEntity, M extends BipedEn
             
             if(data != null) {
                 if (data.getTrustContainer().getBoolSetting(PlayerTrustManager.ALLOW_VANILLA_MOD_ID)) {
-                    figura$applyPartCustomization(partID, bipedEntityModel.head);
-                    figura$applyPartCustomization(partID, bipedEntityModel.helmet);
-                    figura$applyPartCustomization(partID, bipedEntityModel.torso);
-                    figura$applyPartCustomization(partID, bipedEntityModel.leftArm);
-                    figura$applyPartCustomization(partID, bipedEntityModel.leftLeg);
-                    figura$applyPartCustomization(partID, bipedEntityModel.rightArm);
-                    figura$applyPartCustomization(partID, bipedEntityModel.rightLeg);
+                    for (ModelPart part : ((ModelAccess) actualModel).figura$getModelParts()) {
+                        figura$applyPartCustomization(partID, part);
+                    }
                 }
             }
         }
-        
+
+        otherModel.setAttributes(actualModel);
     }
 
     @Inject(at = @At("RETURN"), method = "renderArmor")
