@@ -15,6 +15,7 @@ public class MessageIDs {
     public static final byte USER_GET_AVATAR_UUID_RESPONSE_HANDLER_ID = Byte.MIN_VALUE + 20;
     public static final byte USER_AVATAR_HASH_RESPONSE_HANDLER_ID = Byte.MIN_VALUE + 21;
 
+    public static final byte AUTHENTICATE_RESPONSE_HANDLER_ID = Byte.MIN_VALUE + 40;
 
     //--------------------SENDERS--------------------
     //---AVATARS---
@@ -31,4 +32,5 @@ public class MessageIDs {
     public static final byte USER_GET_CURRENT_AVATAR_MESSAGE_ID = Byte.MIN_VALUE + 23;
     public static final byte USER_GET_CURRENT_AVATAR_HASH_MESSAGE_ID = Byte.MIN_VALUE + 24;
 
+    public static final byte AUTHENTICATE_MESSAGE_ID = Byte.MIN_VALUE + 60;
 }

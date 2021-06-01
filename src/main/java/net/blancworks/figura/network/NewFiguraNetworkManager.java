@@ -6,6 +6,7 @@ import net.blancworks.figura.Config;
 import net.blancworks.figura.FiguraMod;
 import net.blancworks.figura.PlayerData;
 import net.blancworks.figura.PlayerDataManager;
+import net.blancworks.figura.network.messages.AuthenticateMessageSender;
 import net.blancworks.figura.network.messages.avatar.AvatarUploadMessageSender;
 import net.blancworks.figura.network.messages.user.UserDeleteCurrentAvatarMessageSender;
 import net.blancworks.figura.network.messages.user.UserGetCurrentAvatarHashMessageSender;
@@ -266,9 +267,10 @@ public class NewFiguraNetworkManager implements IFiguraNetwork {
 
         newSocket.connect();
 
-        newSocket.sendText(jwtToken);
-
         newSocket.sendText(String.format("{\"protocol\":%d}", PROTOCOL_VERSION));
+
+        if (jwtToken != null)
+            new AuthenticateMessageSender(jwtToken).sendMessage(newSocket);
 
         return newSocket;
     }
