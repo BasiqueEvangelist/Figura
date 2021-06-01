@@ -8,8 +8,12 @@ public class AuthenticateMessageSender extends MessageSender {
     private final String token;
 
     public AuthenticateMessageSender(String token) {
-        super(MessageIDs.AUTHENTICATE_MESSAGE_ID);
         this.token = token;
+    }
+
+    @Override
+    public String getProtocolName() {
+        return "figura_v1:authenticate";
     }
 
     @Override
