@@ -5,15 +5,19 @@
   "compatibilityLevel": "JAVA_8",
   "client": [
     "ArmorFeatureRendererMixin",
+    "CameraMixin",
+    "ChatHudListenerMixin",
     "ClientLoginNetworkHandlerMixin",
+    "DebugHudMixin",
     "ElytraEntityModelMixin",
     "ElytraFeatureRendererMixin",
+    "FiguraTextImplMixin",
     "GameMenuScreenMixin",
+    "HeadFeatureRendererMixin",
     "HeldItemModelMixin",
-    "ChatHudListenerMixin",
     "LivingEntityRendererMixin",
     "MatrixStackMixin",
-    "MixinDebugHud",
+    "MinecraftClientMixin",
     "ModelPartMixin",
     "PlayerEntityRendererMixin",
     "PlayerListHudMixin",
@@ -22,7 +26,9 @@
     "WorldRendererMixin",
     "MinecraftClientMixin",
     "CameraMixin",
-    "ModelMixin"
+    "ModelMixin",
+    "ShoulderParrotFeatureRendererMixin",
+    "WorldRendererMixin"
   ],
   "injectors": {
     "defaultRequire": 1

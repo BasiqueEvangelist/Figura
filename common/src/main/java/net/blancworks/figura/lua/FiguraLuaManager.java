@@ -3,11 +3,16 @@ package net.blancworks.figura.lua;
 import net.blancworks.figura.PlayerData;
 import net.blancworks.figura.lua.api.LuaEvent;
 import net.blancworks.figura.lua.api.MetaAPI;
+import net.blancworks.figura.lua.api.emoteWheel.EmoteWheelAPI;
+import net.blancworks.figura.lua.api.item.ItemStackAPI;
+import net.blancworks.figura.lua.api.keybind.KeyBindAPI;
+import net.blancworks.figura.lua.api.nameplate.NamePlateAPI;
 import net.blancworks.figura.lua.api.ReadOnlyLuaTable;
 import net.blancworks.figura.lua.api.RendererAPI;
 import net.blancworks.figura.lua.api.camera.CameraAPI;
 import net.blancworks.figura.lua.api.math.VectorAPI;
 import net.blancworks.figura.lua.api.model.*;
+import net.blancworks.figura.lua.api.network.NetworkAPI;
 import net.blancworks.figura.lua.api.particle.ParticleAPI;
 import net.blancworks.figura.lua.api.sound.SoundAPI;
 import net.blancworks.figura.lua.api.world.WorldAPI;
@@ -65,11 +70,17 @@ public class FiguraLuaManager {
         apiSuppliers.put(MetaAPI.getID(), MetaAPI::getForScript);
         apiSuppliers.put(RendererAPI.getID(), RendererAPI::getForScript);
         apiSuppliers.put(CameraAPI.getID(), CameraAPI::getForScript);
+        apiSuppliers.put(ParrotModelAPI.getID(), ParrotModelAPI::getForScript);
+        apiSuppliers.put(EmoteWheelAPI.getID(), EmoteWheelAPI::getForScript);
+        apiSuppliers.put(NetworkAPI.getID(), NetworkAPI::getForScript);
+        apiSuppliers.put(ItemStackAPI.getID(), ItemStackAPI::getForScript);
+        apiSuppliers.put(KeyBindAPI.getID(), KeyBindAPI::getForScript);
     }
 
     public static void registerEvents(){
         registerEvent("tick");
         registerEvent("render");
+        registerEvent("player_init");
 
         registerEvent("onDamage");
     }

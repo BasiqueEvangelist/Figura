@@ -51,6 +51,7 @@ public class FiguraGuiScreen extends Screen {
     public Identifier reloadTexture = new Identifier("figura", "textures/gui/reload.png");
     public Identifier deleteTexture = new Identifier("figura", "textures/gui/delete.png");
     public Identifier expandTexture = new Identifier("figura", "textures/gui/expand.png");
+    public Identifier keybindsTexture = new Identifier("figura", "textures/gui/keybinds.png");
     public Identifier playerBackgroundTexture = new Identifier("figura", "textures/gui/player_background.png");
     public Identifier scalableBoxTexture = new Identifier("figura", "textures/gui/scalable_box.png");
 
@@ -61,11 +62,13 @@ public class FiguraGuiScreen extends Screen {
 
     public static final TranslatableText uploadTooltip = new TranslatableText("gui.figura.button.tooltip.upload");
     public static final TranslatableText reloadTooltip = new TranslatableText("gui.figura.button.tooltip.reloadavatar");
+    public static final TranslatableText keybindTooltip = new TranslatableText("gui.figura.button.tooltip.keybinds");
 
     public TexturedButtonWidget uploadButton;
     public TexturedButtonWidget reloadButton;
     public TexturedButtonWidget deleteButton;
     public TexturedButtonWidget expandButton;
+    public TexturedButtonWidget keybindsButton;
 
     public MutableText nameText;
     public MutableText rawNameText;
@@ -105,9 +108,10 @@ public class FiguraGuiScreen extends Screen {
 
     public FiguraTrustScreen trustScreen = new FiguraTrustScreen(this);
     public FiguraConfigScreen configScreen = new FiguraConfigScreen(this);
+    public FiguraKeyBindsScreen keyBindsScreen = new FiguraKeyBindsScreen(this);
 
     public CustomListWidgetState modelFileListState = new CustomListWidgetState();
-    public static ModelFileListWidget modelFileList;
+    public ModelFileListWidget modelFileList;
 
     public FiguraGuiScreen(Screen parentScreen) {
         super(new TranslatableText("gui.figura.menutitle"));
@@ -140,10 +144,10 @@ public class FiguraGuiScreen extends Screen {
         searchBoxX = 7;
         this.searchBox = new TextFieldWidget(this.textRenderer, searchBoxX, 22, searchBoxWidth, 20, this.searchBox, new TranslatableText("gui.figura.button.search"));
         this.searchBox.setChangedListener((string_1) -> modelFileList.filter(string_1, false));
-        modelFileList = new ModelFileListWidget(this.client, paneWidth, this.height, paneY + 19, this.height - 36, 20, this.searchBox, modelFileList, this, modelFileListState);
-        modelFileList.setLeftPos(5);
-        this.addChild(modelFileList);
-        this.addChild(searchBox);
+        this.modelFileList = new ModelFileListWidget(this.client, paneWidth, this.height, paneY + 19, this.height - 36, 20, this.searchBox, this.modelFileList, this, modelFileListState);
+        this.modelFileList.setLeftPos(5);
+        this.addChild(this.modelFileList);
+        this.addChild(this.searchBox);
 
         int width = Math.min((this.width / 2) - 10 - 128, 128);
 
@@ -176,6 +180,17 @@ public class FiguraGuiScreen extends Screen {
             this.client.openScreen(this);
         }, "https://github.com/TheOneTrueZandra/Figura/wiki/Figura-Panel", true))));
 
+        //keybinds button
+        keybindsButton = new TexturedButtonWidget(
+                this.width - 140 - 5 - 25, 15,
+                20, 20,
+                0, 0, 20,
+                keybindsTexture, 40, 40,
+                (bx) -> this.client.openScreen(keyBindsScreen)
+        );
+        this.addButton(keybindsButton);
+        keybindsButton.active = false;
+
         //delete button
         deleteButton = new TexturedButtonWidget(
                 this.width / 2 + modelBgSize / 2 + 4, this.height / 2 - modelBgSize / 2,
@@ -183,7 +198,7 @@ public class FiguraGuiScreen extends Screen {
                 0, 0, 25,
                 deleteTexture, 50, 50,
                 (bx) -> {
-                    if(isHoldingShift)
+                    if (isHoldingShift)
                         FiguraMod.networkManager.deleteAvatar();
                 }
         );
@@ -230,7 +245,7 @@ public class FiguraGuiScreen extends Screen {
             if (PlayerDataManager.lastLoadedFileName != null)
                 nameText = new TranslatableText("gui.figura.name", PlayerDataManager.lastLoadedFileName.substring(0, Math.min(20, PlayerDataManager.lastLoadedFileName.length())));
             modelComplexityText = new TranslatableText("gui.figura.complexity", PlayerDataManager.localPlayer.model.getRenderComplexity());
-            fileSizeText = getFileSizeText();
+            FiguraMod.doTask(() -> fileSizeText = getFileSizeText());
             scriptText = getScriptText();
         }
 
@@ -261,7 +276,7 @@ public class FiguraGuiScreen extends Screen {
                 if (PlayerDataManager.lastLoadedFileName == null)
                     nameText = null;
                 modelComplexityText = new TranslatableText("gui.figura.complexity", PlayerDataManager.localPlayer.model.getRenderComplexity());
-                fileSizeText = getFileSizeText();
+                FiguraMod.doTask(() -> fileSizeText = getFileSizeText());
                 scriptText = getScriptText();
             }
         }
@@ -304,31 +319,46 @@ public class FiguraGuiScreen extends Screen {
             //deprecated warning
             if (rawNameText != null && rawNameText.getString().endsWith("*"))
                 drawCenteredText(matrices, MinecraftClient.getInstance().textRenderer, new TranslatableText("gui.figura.deprecatedwarning"), this.width / 2, 4, TextColor.parse("red").getRgb());
+
+            //mod version
+            drawCenteredText(matrices, MinecraftClient.getInstance().textRenderer, new LiteralText("Figura " + FiguraMod.modVersion).setStyle(Style.EMPTY.withItalic(true)), this.width / 2, this.height - 12, TextColor.parse("dark_gray").getRgb());
         }
 
         //draw buttons
         super.render(matrices, mouseX, mouseY, delta);
 
-        if(uploadButton.isMouseOver(mouseX, mouseY)){
+        if (uploadButton.isMouseOver(mouseX, mouseY)){
             matrices.push();
             matrices.translate(0, 0, 599);
             renderTooltip(matrices, uploadTooltip, mouseX, mouseY);
             matrices.pop();
         }
 
-        if(reloadButton.isMouseOver(mouseX, mouseY)){
+        if (reloadButton.isMouseOver(mouseX, mouseY)){
             matrices.push();
             matrices.translate(0, 0, 599);
             renderTooltip(matrices, reloadTooltip, mouseX, mouseY);
             matrices.pop();
         }
 
+        keybindsButton.active = PlayerDataManager.localPlayer != null && PlayerDataManager.localPlayer.script != null;
+
+        boolean wasKeybindsActive = keybindsButton.active;
+        keybindsButton.active = true;
+        if (keybindsButton.isMouseOver(mouseX, mouseY)) {
+            matrices.push();
+            matrices.translate(0, 0, 599);
+            renderTooltip(matrices, keybindTooltip, mouseX, mouseY);
+            matrices.pop();
+        }
+        keybindsButton.active = wasKeybindsActive;
+
         if (!deleteButton.active) {
             deleteButton.active = true;
             boolean mouseOver = deleteButton.isMouseOver(mouseX, mouseY);
             deleteButton.active = false;
 
-            if(mouseOver) {
+            if (mouseOver) {
                 matrices.push();
                 matrices.translate(0, 0, 599);
                 renderTooltip(matrices, deleteTooltip, mouseX, mouseY);
@@ -361,6 +391,7 @@ public class FiguraGuiScreen extends Screen {
 
     public void clickButton(String fileName) {
         PlayerDataManager.lastLoadedFileName = fileName;
+        PlayerDataManager.localPlayer.isLocalAvatar = true;
         PlayerDataManager.localPlayer.loadModelFile(fileName);
 
         CompletableFuture.runAsync(() -> {
@@ -378,7 +409,7 @@ public class FiguraGuiScreen extends Screen {
             nameText = new TranslatableText("gui.figura.name", fileName.substring(0, Math.min(20, fileName.length())));
             rawNameText = new LiteralText(fileName);
             modelComplexityText = new TranslatableText("gui.figura.complexity", PlayerDataManager.localPlayer.model.getRenderComplexity());
-            fileSizeText = getFileSizeText();
+            FiguraMod.doTask(() -> fileSizeText = getFileSizeText());
             scriptText = getScriptText();
 
         }, Util.getMainWorkerExecutor());
@@ -448,6 +479,7 @@ public class FiguraGuiScreen extends Screen {
 
             searchBox.visible = true;
             modelFileList.updateSize(paneWidth, this.height, paneY + 19, this.height - 36);
+            modelFileList.setLeftPos(5);
 
             scaledValue  = 0.0F;
         }

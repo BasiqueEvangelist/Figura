@@ -3,6 +3,7 @@ package net.blancworks.figura;
 import net.blancworks.figura.lua.CustomScript;
 import net.blancworks.figura.models.CustomModel;
 import net.blancworks.figura.models.FiguraTexture;
+import net.blancworks.figura.network.NewFiguraNetworkManager;
 import net.blancworks.figura.trust.PlayerTrustManager;
 import net.blancworks.figura.trust.TrustContainer;
 import net.minecraft.client.MinecraftClient;
@@ -15,6 +16,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.nbt.Tag;
+import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
 import java.io.ByteArrayOutputStream;
@@ -52,15 +54,17 @@ public class PlayerData {
     public final List<FiguraTexture> extraTextures = new ArrayList<>();
 
     public PlayerEntity lastEntity;
-
-    //The last time we checked for a hash
-    public Date lastHashCheckTime = new Date();
+    
     //The last hash code of the avatar.
     public String lastHash = "";
     //True if the model needs to be re-loaded due to a hash mismatch.
     public boolean isInvalidated = false;
 
     private Identifier trustIdentifier;
+    
+    public Text playerName;
+    
+    public boolean isLocalAvatar = true;
 
     public Identifier getTrustIdentifier() {
         if (trustIdentifier == null)
@@ -220,9 +224,7 @@ public class PlayerData {
 
             this.model.totalSize = w.size();
             return w.size();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        } catch (Exception ignored) {}
 
         return -1;
     }
@@ -233,11 +235,17 @@ public class PlayerData {
             PlayerDataManager.clearPlayer(playerId);
         vanillaModel = ((PlayerEntityRenderer) MinecraftClient.getInstance().getEntityRenderDispatcher().getRenderer(MinecraftClient.getInstance().player)).getModel();
         lastEntity = MinecraftClient.getInstance().world.getPlayerByUuid(this.playerId);
+        
         FiguraMod.currentPlayer = (AbstractClientPlayerEntity) lastEntity;
+        
+        NewFiguraNetworkManager.subscribe(playerId);
 
         if (lastEntity != null) {
+            playerName = lastEntity.getDisplayName();
+
             if (script != null) {
                 try {
+                    script.setPlayerEntity(lastEntity);
                     script.tick();
                 } catch (Exception e) {
                     e.printStackTrace();

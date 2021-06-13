@@ -29,6 +29,7 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 
+@Deprecated
 /**
  * Used to manage the network operations for Figura.
  * Used for sending/receiving data, managing custom packets/networking, that sort.
@@ -125,7 +126,6 @@ public class FiguraNetworkManager implements IFiguraNetwork {
                         
                         data.loadFromNbt(nbt);
                         data.lastHash = getAvatarHashSync(id);
-                        data.lastHashCheckTime = new Date(new Date().getTime() - (1000 * 1000));
                         data.saveToCache(id);
                     }
                 }
