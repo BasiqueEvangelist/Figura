@@ -3,10 +3,9 @@ package net.blancworks.figura.lua.api.math;
 import net.blancworks.figura.lua.CustomScript;
 import net.blancworks.figura.lua.api.ReadOnlyLuaTable;
 import net.blancworks.figura.utils.ColorUtils;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.world.World;
+import org.luaj.vm2.Lua;
 import org.luaj.vm2.LuaTable;
 import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.lib.OneArgFunction;
@@ -17,10 +16,6 @@ import java.awt.*;
 public class VectorAPI {
     private static ReadOnlyLuaTable globalLuaTable;
     private static boolean initialized;
-
-    private static World getWorld() {
-        return MinecraftClient.getInstance().world;
-    }
 
     public static Identifier getID() {
         return new Identifier("default", "vectors");
@@ -102,6 +97,14 @@ public class VectorAPI {
                     return new LuaVector(new float[n]);
                 }
             });
+
+            set("asTable", new OneArgFunction() {
+                @Override
+                public LuaValue call(LuaValue arg) {
+                    LuaVector vec = LuaVector.checkOrNew(arg);
+                    return toTable(vec);
+                }
+            });
         }});
     }
 
@@ -138,6 +141,14 @@ public class VectorAPI {
         c = (c << 8) + (int) (rgb.y() * 255);
         c = (c << 8) + (int) (rgb.z() * 255);
         return c;
+    }
+
+    public static LuaTable toTable(LuaVector vector) {
+        LuaTable tbl = new LuaTable();
+        for (int i = 1; i < 7; i++) {
+            tbl.insert(i, vector.get(i));
+        }
+        return tbl;
     }
 
     private static final LuaVector[] MODEL_SPACE_FACTORS = new LuaVector[7];

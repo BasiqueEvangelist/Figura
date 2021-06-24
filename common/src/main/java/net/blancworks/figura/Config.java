@@ -104,7 +104,8 @@ public class Config {
         entries.put("nameTagIcon", new ConfigEntry<>(true));
         entries.put("ownNameTag", new ConfigEntry<>(false));
         entries.put("logOthers", new ConfigEntry<>(false));
-        entries.put("emoteWheel", new ConfigEntry<>(GLFW.GLFW_KEY_B));
+        entries.put("actionWheel", new ConfigEntry<>(GLFW.GLFW_KEY_B));
+        entries.put("formatScript", new ConfigEntry<>(true));
     }
 
     public static class ConfigEntry<T> {

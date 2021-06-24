@@ -3,38 +3,26 @@ package net.blancworks.figura;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import me.shedaniel.architectury.registry.KeyBindings;
-import net.blancworks.figura.access.FiguraTextAccess;
 import me.shedaniel.architectury.event.events.client.ClientTickEvent;
 import me.shedaniel.architectury.platform.Platform;
-import net.blancworks.figura.gui.EmoteWheel;
+import net.blancworks.figura.gui.ActionWheel;
 import net.blancworks.figura.gui.FiguraConfigScreen;
 import net.blancworks.figura.lua.FiguraLuaManager;
 import net.blancworks.figura.models.CustomModel;
 import net.blancworks.figura.models.CustomModelPart;
 import net.blancworks.figura.models.parsers.BlockbenchModelDeserializer;
-import net.blancworks.figura.network.FiguraNetworkManager;
 import net.blancworks.figura.network.IFiguraNetwork;
 import net.blancworks.figura.network.NewFiguraNetworkManager;
 import net.blancworks.figura.trust.PlayerTrustManager;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.render.Camera;
-import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.options.KeyBinding;
-import net.minecraft.client.network.ClientLoginNetworkHandler;
 import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.model.PlayerEntityModel;
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.text.LiteralText;
-import net.minecraft.text.Style;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
-import net.minecraft.resource.ResourceManager;
-import net.minecraft.resource.ResourceType;
 import net.minecraft.util.Identifier;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -62,7 +50,7 @@ public class FiguraMod {
 
     public static final String modVersion = Platform.getMod("figura").getVersion();
 
-    public static KeyBinding emoteWheel;
+    public static KeyBinding actionWheel;
 
     //Loading
 
@@ -116,7 +104,7 @@ public class FiguraMod {
         FiguraLuaManager.initialize();
         PlayerTrustManager.init();
         Config.initialize();
-        EmoteWheel.init();
+        ActionWheel.init();
 
         try {
             SSLFixer.main();
@@ -124,9 +112,9 @@ public class FiguraMod {
             e.printStackTrace();
         }
 
-        //emote wheel keybind
-        emoteWheel = new KeyBinding(
-                "key.figura.emotewheel",
+        //action wheel keybind
+        actionWheel = new KeyBinding(
+                "key.figura.actionwheel",
                 InputUtil.Type.KEYSYM,
                 GLFW.GLFW_KEY_B,
                 "key.categories.misc"
@@ -134,12 +122,12 @@ public class FiguraMod {
             @Override
             public void setBoundKey(InputUtil.Key boundKey) {
                 super.setBoundKey(boundKey);
-                Config.entries.get("emoteWheel").value = boundKey.getCode();
+                Config.entries.get("actionWheel").value = boundKey.getCode();
                 Config.saveConfig();
         }};
 
-        emoteWheel.setBoundKey(InputUtil.Type.KEYSYM.createFromCode(((int) Config.entries.get("emoteWheel").value)));
-        KeyBindings.registerKeyBinding(emoteWheel);
+        actionWheel.setBoundKey(InputUtil.Type.KEYSYM.createFromCode(((int) Config.entries.get("actionWheel").value)));
+        KeyBindings.registerKeyBinding(actionWheel);
 
         //Set up network
         //oldNetworkManager = new FiguraNetworkManager();
